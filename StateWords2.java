@@ -8,11 +8,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.apache.hadoop.mapreduce.lib.join.TupleWritable;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 public class StateWords2 {
@@ -43,7 +45,7 @@ public class StateWords2 {
     }
   }
   
-  // Job 1
+  // Job 1 and 2 Reducer
   /* Combines data from states files to one output*/
   public static class IntSumCombiner
        extends Reducer<Text,IntWritable,Text,IntWritable> {
@@ -61,8 +63,6 @@ public class StateWords2 {
       
     }
   }
-  
-  
   
   // Job 2 Mapper
   public static class WordStateCountMapper
@@ -91,26 +91,22 @@ public class StateWords2 {
   
   // Job 3 Mapper
   public static class WordStateCountMapper2
-	  extends Mapper<Object, Text, Text, IntWritable>{
-	
-		private final static IntWritable one = new IntWritable(1);
-		private Text word = new Text();
+	  extends Mapper<Object, Text, Text, TupleWritable>{
 		
 		public void map(Object key, Text value, Context context
 		               ) throws IOException, InterruptedException {
 			
 		 StringTokenizer itrLine = new StringTokenizer(value.toString(), "\n");
 		 
-		 // Take each line and interpret as word[0] = word, word[1] = state, word[2] = count
-		 // then context.write(word[0], word[2] aka count)
-		 
 		 while (itrLine.hasMoreTokens()) {
 			 String[] lineSplit = itrLine.nextToken().split("\\s+");
 			 int count = Integer.parseInt(lineSplit[2]);
-			 context.write(new Text(lineSplit[0]), new IntWritable(count));
+			 Writable[] stateCount = {new Text(lineSplit[1]), new IntWritable(count)};
+			 context.write(new Text(lineSplit[0]), new TupleWritable(stateCount));
 		 }
 	}
 } 
+
   
   
   
