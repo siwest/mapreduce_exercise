@@ -113,7 +113,7 @@ public class StateWords2 {
 } 
   // Job 3 Reducer
   public static class MaxReducer
-	  extends Reducer<Text,IntWritable,Text,ArrayWritable> {
+	  extends Reducer<Text,TupleWritable,Text,ArrayWritable> {
 	  
 	  	Comparator<TupleWritable> comparator = new Comparator<TupleWritable>() {	         
 			@Override
