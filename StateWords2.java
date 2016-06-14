@@ -139,7 +139,7 @@ public class StateWords2 {
 		 }
 		 
 		 ArrayWritable aw = new ArrayWritable(TupleWritable.class);
-		 Writable[] items = (TupleWritable[]) sortedStates.toArray();
+		 TupleWritable[] items = (TupleWritable[]) sortedStates.toArray();
 		 aw.set(items);
 		 
 		 context.write(key, aw);
