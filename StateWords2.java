@@ -134,7 +134,7 @@ public class StateWords2 {
 	     System.out.println("Entered Reducer");
 	     
 		 for (TupleWritable val : values) {
-			 System.out.println(val);
+			 System.out.println(((IntWritable) val.get(1)).toString());
 			 sortedStates.add(val);
 		 }
 		 System.out.println(sortedStates.first());
