@@ -178,9 +178,8 @@ public class StateWords2 {
     Configuration conf3 = new Configuration();
     Job job3 = Job.getInstance(conf3, "word maps to array of states");
     job3.setJarByClass(StateWords2.class);
-    job3.setMapperClass(WordStateCountMapper.class);
-    job3.setCombinerClass(IntSumCombiner.class);
-    job3.setReducerClass(IntSumCombiner.class);
+    job3.setMapperClass(WordStateCountMapper2.class); // Combiner not used because mapper outputs different type 
+    job3.setReducerClass(MaxReducer.class);
     job3.setOutputKeyClass(Text.class);
     job3.setOutputValueClass(IntWritable.class);
     FileInputFormat.addInputPath(job3, new Path(args[1]));
