@@ -137,7 +137,7 @@ public class StateWords2 {
 		 for (TupleWritable val : values) {
 			 sortedStates.add(val);
 		 }
-		 
+		 System.out.println(sortedStates.first());
 		 ArrayWritable aw = new ArrayWritable(TupleWritable.class);
 		 TupleWritable[] items = (TupleWritable[]) sortedStates.toArray();
 		 aw.set(items);
