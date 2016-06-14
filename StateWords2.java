@@ -180,8 +180,10 @@ public class StateWords2 {
     job3.setJarByClass(StateWords2.class);
     job3.setMapperClass(WordStateCountMapper2.class); // Combiner not used because mapper outputs different type 
     job3.setReducerClass(MaxReducer.class);
+    job3.setMapOutputKeyClass(Text.class);
+    job3.setMapOutputValueClass(TupleWritable.class);
     job3.setOutputKeyClass(Text.class);
-    job3.setOutputValueClass(IntWritable.class);
+    job3.setOutputValueClass(ArrayWritable.class);
     FileInputFormat.addInputPath(job3, new Path(args[1]));
     FileOutputFormat.setOutputPath(job3, new Path(args[3]));
     
