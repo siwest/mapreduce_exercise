@@ -1,11 +1,16 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.SortedSet;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.ArrayWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -106,68 +111,42 @@ public class StateWords2 {
 		 }
 	}
 } 
-
-  
-  
-  
-  
-  /* Totals words for each state */
- /* public static class IntSumReducer
-  	extends Reducer<Text,IntWritable,Text,IntWritable> {
+  // Job 3 Reducer
+  public static class MaxReducer
+	  extends Reducer<Text,IntWritable,Text,ArrayWritable> {
+	  
+	  	Comparator<TupleWritable> comparator = new Comparator<TupleWritable>() {	         
+			@Override
+			public int compare(TupleWritable o1, TupleWritable o2) {
+				IntWritable a = (IntWritable) o1.get(1);
+				IntWritable b = (IntWritable) o2.get(1);
+				return a.compareTo(b);
+			}
+	    };
+        
+	    SortedSet<TupleWritable> sortedStates = new TreeSet<>(comparator);
+	    
 		private IntWritable result = new IntWritable();
 		
-		private Text tmpWord = new Text("");
-		private Text tmpState = new Text("");
-	    private int tmpFrequency = 0;
-		
-	    // Maps word: state, count
-	    HashMap<String, HashMap<String, Integer> > mapWordStates = new HashMap <String, HashMap<String, Integer>>();
-	    
-		
-		public void reduce(Text key, Iterable<IntWritable> values,
+		public void reduce(Text key, Iterable<TupleWritable> values,
 		                  Context context
-		                  ) throws IOException, InterruptedException {		 
-		 
-		// Collect top 3 state counts by word
-		 for (IntWritable val : values) {
-			 // stateWords composite key is "State Word". 
-			 // 	stateWords[0] = state
-			 // 	stateWords[1] = word 
-			  
-			 String[] stateWords = key.toString().split(" ");
-			 HashMap<String, Integer> tempMap = new HashMap<String, Integer>();
-			 tempMap.put(stateWords[0], val.get());
-			 
-			 // If Word is already in map of words
-			 if (mapWordStates.containsValue(stateWords[1])) {
-				 
-				 // Check if state already has 3 entries
-				 if (mapWordStates.get(stateWords[1]).size() == 3) {
-					 // Iterate over all 3 entries and remove min if smaller than tempMap value					 
-					 Iterator it = mapWordStates.get(stateWords[1]).entrySet().iterator();			 
-					 while (it.hasNext()) {	 
-						 HashMap.Entry pair = (HashMap.Entry) it.next();
-						 if (val.get() > (int) pair.getValue()) {
-							 mapWordStates.get(stateWords[1]).remove(pair.getKey());
-							 
-						 }
-					 }
-					 mapWordStates.put(stateWords[1], tempMap);
-				 }
+		                  ) throws IOException, InterruptedException {
 			
-			 } else {
-				 mapWordStates.put(stateWords[1], tempMap);
-			 }	 
+			
+		 int sum = 0;
+		 for (TupleWritable val : values) {
+			 sortedStates.add(val);
 		 }
 		 
+		 ArrayWritable aw = new ArrayWritable(TupleWritable.class);
+		 Writable[] items = (TupleWritable[]) sortedStates.toArray();
+		 aw.set(items);
 		 
+		 context.write(key, aw);
 		 
-		 context.write(key, result);
-		 
-		}
-}*/
+	}
+} 
   
-
 
   public static void main(String[] args) throws Exception {
 	Configuration conf = new Configuration();
@@ -194,7 +173,20 @@ public class StateWords2 {
     FileInputFormat.addInputPath(job2, new Path(args[1]));
     FileOutputFormat.setOutputPath(job2, new Path(args[2]));
     
-    System.exit(job2.waitForCompletion(true) ? 0 : 1);
+    //////////////////////////////////////////////////////////////
+    job2.waitForCompletion(true);
+    Configuration conf3 = new Configuration();
+    Job job3 = Job.getInstance(conf3, "word maps to array of states");
+    job3.setJarByClass(StateWords2.class);
+    job3.setMapperClass(WordStateCountMapper.class);
+    job3.setCombinerClass(IntSumCombiner.class);
+    job3.setReducerClass(IntSumCombiner.class);
+    job3.setOutputKeyClass(Text.class);
+    job3.setOutputValueClass(IntWritable.class);
+    FileInputFormat.addInputPath(job3, new Path(args[1]));
+    FileOutputFormat.setOutputPath(job3, new Path(args[3]));
+    
+    System.exit(job3.waitForCompletion(true) ? 0 : 1);
     //////////////////////////////////////////////////////////////
     
   }
