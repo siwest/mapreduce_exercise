@@ -109,6 +109,7 @@ public class StateWords2 {
 			 Writable[] stateCount = {new Text(lineSplit[1]), new IntWritable(count)};
 			 context.write(new Text(lineSplit[0]), new TupleWritable(stateCount));
 		 }
+		 System.out.println("Exiting mapper");
 	}
 } 
   // Job 3 Reducer
@@ -123,17 +124,15 @@ public class StateWords2 {
 				return a.compareTo(b);
 			}
 	    };
-        
-	    SortedSet<TupleWritable> sortedStates = new TreeSet<>(comparator);
 	    
-		private IntWritable result = new IntWritable();
+	    SortedSet<TupleWritable> sortedStates = new TreeSet<>(comparator);
 		
 		public void reduce(Text key, Iterable<TupleWritable> values,
 		                  Context context
 		                  ) throws IOException, InterruptedException {
 			
-			
-		 int sum = 0;
+	     System.out.println("Entered Reducer");
+	     
 		 for (TupleWritable val : values) {
 			 sortedStates.add(val);
 		 }
