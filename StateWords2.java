@@ -138,7 +138,7 @@ public class StateWords2 {
 			 
 		 });
 		 
-		 String result = StringUtils.join(statesList, ", ");
+		 String result = StringUtils.join(statesList.subList(0, 3), ", ");
 
 		 Text sortedStateCounts  = new Text(result);
 		 
