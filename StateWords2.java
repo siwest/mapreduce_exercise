@@ -117,8 +117,8 @@ public class StateWords2 {
 	  	Comparator<Text> comparator = new Comparator<Text>() {	         
 			@Override
 			public int compare(Text o1, Text o2) {
-				String[] stringArray1 = o1.toString().split("//s+");
-				String[] stringArray2 = o2.toString().split("//s+");
+				String[] stringArray1 = o1.toString().split("\\s+");
+				String[] stringArray2 = o2.toString().split("\\s+");
 				System.out.println("Comparing " + stringArray1[0] + " and " + stringArray2[0]);
 				Integer a = Integer.parseInt(stringArray1[0]);
 				Integer b = Integer.parseInt(stringArray2[0]);
