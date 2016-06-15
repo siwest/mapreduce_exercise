@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,6 +9,7 @@ import java.util.SortedSet;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ArrayWritable;
@@ -118,21 +120,27 @@ public class StateWords2 {
 		                  Context context
 		                  ) throws IOException, InterruptedException {
 			
-	     System.out.println("Entered Reducer");
 	     
 	     
-	     ArrayList<String> unsortedStatesList = new ArrayList<String>();
+	     ArrayList<String> statesList = new ArrayList<String>();
 		 for (Text val : values) {
-			 unsortedStatesList.add(val.toString());
+			 statesList.add(val.toString());
 		 }
 		 
-	/*	 String[] sortedStates = new String[3];
-		 for (int i; i < unsortedStatesList.size() -1 ; i ++) {
-			 String s1 = unsortedStatesList.remove(0);
-			 unsortedStatesList.g
-		 } */
+		 Collections.sort(statesList, new Comparator<String>() {
 
-		 Text sortedStateCounts  = new Text(unsortedStatesList.toArray().toString());
+			@Override
+			public int compare(String o1, String o2) {
+				String[] array1 = o1.split("\\s+");
+				String[] array2 = o2.split("\\s+");
+				return Integer.parseInt(array1[1]) - Integer.parseInt(array2[1]);
+			}
+			 
+		 });
+		 
+		 String result = StringUtils.join(statesList, ", ");
+
+		 Text sortedStateCounts  = new Text(result);
 		 
 		 context.write(key, sortedStateCounts);
 		 
