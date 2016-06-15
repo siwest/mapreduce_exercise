@@ -133,7 +133,7 @@ public class StateWords2 {
 			public int compare(String o1, String o2) {
 				String[] array1 = o1.split("\\s+");
 				String[] array2 = o2.split("\\s+");
-				return Integer.parseInt(array1[1]) - Integer.parseInt(array2[1]);
+				return Integer.parseInt(array2[1]) - Integer.parseInt(array2[1]);
 			}
 			 
 		 });
