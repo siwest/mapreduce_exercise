@@ -96,7 +96,7 @@ public class StateWords2 {
   
   // Job 3 Mapper
   public static class WordStateCountMapper2
-	  extends Mapper<Object, Text, Text, TupleWritable>{
+	  extends Mapper<Object, Text, Text, Text>{
 		
 		public void map(Object key, Text value, Context context
 		               ) throws IOException, InterruptedException {
@@ -105,44 +105,45 @@ public class StateWords2 {
 		 
 		 while (itrLine.hasMoreTokens()) {
 			 String[] lineSplit = itrLine.nextToken().split("\\s+");
-			 int count = Integer.parseInt(lineSplit[2]);
-			 Writable[] stateCount = {new Text(lineSplit[1]), new IntWritable(count)};
-			 context.write(new Text(lineSplit[0]), new TupleWritable(stateCount));
+			 Text stateCount = new Text(lineSplit[1] + " " +  lineSplit[2]);
+			 context.write(new Text(lineSplit[0]), stateCount);
 		 }
-		 System.out.println("Exiting mapper");
 	}
 } 
   // Job 3 Reducer
   public static class MaxReducer
-	  extends Reducer<Text,TupleWritable,Text,ArrayWritable> {
+	  extends Reducer<Text,Text,Text,Text> {
 	  
-	  	Comparator<TupleWritable> comparator = new Comparator<TupleWritable>() {	         
+	  	Comparator<Text> comparator = new Comparator<Text>() {	         
 			@Override
-			public int compare(TupleWritable o1, TupleWritable o2) {
-				IntWritable a = (IntWritable) o1.get(1);
-				IntWritable b = (IntWritable) o2.get(1);
+			public int compare(Text o1, Text o2) {
+				String[] stringArray1 = o1.toString().split("//s+");
+				String[] stringArray2 = o2.toString().split("//s+");
+				Integer a = Integer.parseInt(stringArray1[1]);
+				Integer b = Integer.parseInt(stringArray2[1]);
 				return a.compareTo(b);
 			}
 	    };
 	    
-	    SortedSet<TupleWritable> sortedStates = new TreeSet<>(comparator);
+	    SortedSet<Text> sortedStates = new TreeSet<>(comparator);
 		
-		public void reduce(Text key, Iterable<TupleWritable> values,
+		public void reduce(Text key, Iterable<Text> values,
 		                  Context context
 		                  ) throws IOException, InterruptedException {
 			
 	     System.out.println("Entered Reducer");
 	     
-		 for (TupleWritable val : values) {
-			 System.out.println(((IntWritable) val.get(1)).toString());
+		 for (Text val : values) {
+			 System.out.println("Value " + val.toString());
 			 sortedStates.add(val);
 		 }
 		 System.out.println(sortedStates.first());
-		 ArrayWritable aw = new ArrayWritable(TupleWritable.class);
-		 TupleWritable[] items = (TupleWritable[]) sortedStates.toArray();
-		 aw.set(items);
+		 System.out.println(sortedStates.last());
+
+		 Text[] items = (Text[]) sortedStates.toArray();
+		 Text sortedStateCounts = new Text(items.toString());
 		 
-		 context.write(key, aw);
+		 context.write(key, sortedStateCounts);
 		 
 	}
 } 
@@ -181,9 +182,9 @@ public class StateWords2 {
     job3.setMapperClass(WordStateCountMapper2.class); // Combiner not used because mapper outputs different type 
     job3.setReducerClass(MaxReducer.class);
     job3.setMapOutputKeyClass(Text.class);
-    job3.setMapOutputValueClass(TupleWritable.class);
+    job3.setMapOutputValueClass(Text.class);
     job3.setOutputKeyClass(Text.class);
-    job3.setOutputValueClass(ArrayWritable.class);
+    job3.setOutputValueClass(Text.class);
     FileInputFormat.addInputPath(job3, new Path(args[1]));
     FileOutputFormat.setOutputPath(job3, new Path(args[3]));
     
