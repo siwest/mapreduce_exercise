@@ -119,6 +119,7 @@ public class StateWords2 {
 			public int compare(Text o1, Text o2) {
 				String[] stringArray1 = o1.toString().split("//s+");
 				String[] stringArray2 = o2.toString().split("//s+");
+				System.out.println("Comparing " + stringArray1 + " and " + stringArray2);
 				Integer a = Integer.parseInt(stringArray1[1]);
 				Integer b = Integer.parseInt(stringArray2[1]);
 				return a.compareTo(b);
