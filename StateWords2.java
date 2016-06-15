@@ -113,37 +113,26 @@ public class StateWords2 {
   // Job 3 Reducer
   public static class MaxReducer
 	  extends Reducer<Text,Text,Text,Text> {
-	  
-	  	Comparator<Text> comparator = new Comparator<Text>() {	         
-			@Override
-			public int compare(Text o1, Text o2) {
-				String[] stringArray1 = o1.toString().split("\\s+");
-				String[] stringArray2 = o2.toString().split("\\s+");
-				Integer a = Integer.parseInt(stringArray1[1]);
-				Integer b = Integer.parseInt(stringArray2[1]);
-				System.out.println("Comparing1 " + stringArray1[1] + " and " + stringArray2[1]);
-
-				return a.compareTo(b);
-			}
-	    };
-	    
-	    SortedSet<Text> sortedStates = new TreeSet<>(comparator);
-		
+	  		
 		public void reduce(Text key, Iterable<Text> values,
 		                  Context context
 		                  ) throws IOException, InterruptedException {
 			
 	     System.out.println("Entered Reducer");
 	     
+	     
+	     ArrayList<String> unsortedStatesList = new ArrayList<String>();
 		 for (Text val : values) {
-			 System.out.println("Value " + val.toString());
-			 sortedStates.add(val);
+			 unsortedStatesList.add(val.toString());
 		 }
-		 System.out.println(sortedStates.first());
-		 System.out.println(sortedStates.last());
+		 
+	/*	 String[] sortedStates = new String[3];
+		 for (int i; i < unsortedStatesList.size() -1 ; i ++) {
+			 String s1 = unsortedStatesList.remove(0);
+			 unsortedStatesList.g
+		 } */
 
-		 Text[] items = (Text[]) sortedStates.toArray();
-		 Text sortedStateCounts = new Text(items.toString());
+		 Text sortedStateCounts  = new Text(unsortedStatesList.toArray().toString());
 		 
 		 context.write(key, sortedStateCounts);
 		 
