@@ -34,7 +34,7 @@ public class StateWords2 {
 
     public void map(Object key, Text value, Context context
                     ) throws IOException, InterruptedException {
-      StringTokenizer itr = new StringTokenizer(value.toString());
+      StringTokenizer itr = new StringTokenizer(value.toString().toLowerCase());
       
       String fileName = ((FileSplit) context.getInputSplit()).getPath().getName();
       
